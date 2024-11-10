@@ -1,0 +1,86 @@
+package org.firstinspires.ftc.teamcode;
+
+import android.os.Environment;
+
+import com.qualcomm.robotcore.eventloop.opmode.*;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+@TeleOp(name = "CreateFile")
+public class CreateFile extends LinearOpMode {
+
+    @Override
+    public void runOpMode() {
+        ArrayList<HashMap<String, Double>> recording = new ArrayList<>();
+
+        HashMap<String, Double> test = new HashMap<>();
+        test.put("Test", 1.0);
+
+        recording.add(test);
+        telemetry.addData("List", recording.toString());
+
+        String path = String.format("%s/FIRST/data/recording.fil",
+                Environment.getExternalStorageDirectory().getAbsolutePath());
+
+        try{
+            File file = new File(path);
+
+            if(file.createNewFile()){
+                telemetry.addData("File Creation", "Success");
+            }
+            else{
+                telemetry.addData("File Creation", "Failed, Already exists");
+            }
+        }catch(IOException e){
+            telemetry.addData("ERROR", e.toString());
+        }
+
+        telemetry.addData("testOne", testOne(recording, path));
+        telemetry.addData("testTwo", testTwo(recording, path));
+
+
+
+
+        telemetry.update();
+        waitForStart();
+    }
+
+    public String testOne(ArrayList<HashMap<String, Double>> recording, String path){
+        String rv = "Save Complete";
+
+        try (FileWriter csvWriter = new FileWriter(path)) {
+            csvWriter.write(recording.toString());
+        }
+        catch (IOException e) {
+            rv = e.toString();
+        }
+
+        return rv;
+    }
+
+    public String testTwo(ArrayList<HashMap<String, Double>> recording, String path){
+        String rv = "Save Complete";
+
+        try {
+            File file = new File(path);
+
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            oos.writeObject(recording);
+            oos.close();
+        }
+        catch(IOException e){
+            rv = e.toString();
+        }
+
+        return rv;
+    }
+
+}
